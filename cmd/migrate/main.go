@@ -9,7 +9,6 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
-	"github.com/leugard21/aniflix-api/configs"
 	_ "github.com/lib/pq"
 )
 
