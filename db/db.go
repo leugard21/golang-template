@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/leugard21/aniflix-api/configs"
 	_ "github.com/lib/pq"
 )
 

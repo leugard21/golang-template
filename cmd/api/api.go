@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/leugard21/aniflix-api/services/user"
 )
 
 type APIServer struct {
