@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
-
+	"template/cmd/api"
+	"template/configs"
+	"template/db"
 )
 
 func main() {

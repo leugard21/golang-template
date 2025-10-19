@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"template/configs"
 
 	_ "github.com/lib/pq"
 )

@@ -1,8 +1,10 @@
 package user
 
 import (
+	"net/http"
+	"template/types"
+
 	"github.com/gorilla/mux"
-	"github.com/leugard21/aniflix-api/types"
 )
 
 type Handler struct {
@@ -16,3 +18,5 @@ func NewHandler(store types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 }
+
+func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {}

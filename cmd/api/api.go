@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"template/services/user"
 
 	"github.com/gorilla/mux"
 )

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"template/configs"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
