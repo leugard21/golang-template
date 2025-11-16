@@ -11,10 +11,19 @@ type User struct {
 }
 
 type UserStore interface {
-	CreateUser(User) error
+	CreateUser(User) (int, error)
+	GetUserByEmail(email string) (*User, error)
+	GetUserByUsername(username string) (*User, error)
+	GetUserByID(id int) (*User, error)
 }
 
 type RegisterUserPayload struct {
+	Username string `json:"username" validate:"required,min=3,max=30"`
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=3,max=130"`
+	Password string `json:"password" validate:"required,min=8,max=130"`
+}
+
+type LoginPayload struct {
+	Identifier string `json:"identifier" validate:"required"`
+	Password   string `json:"password" validate:"required"`
 }

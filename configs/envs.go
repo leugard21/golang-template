@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -14,27 +15,26 @@ type Config struct {
 	DBHost     string
 	DBPort     string
 	DBName     string
+	JWTSecret  string
 }
 
-var Envs = initConfig()
+var Envs Config
 
-func initConfig() Config {
-	godotenv.Load()
+func init() {
+	_ = godotenv.Load()
 
-	return Config{
-		PublicHost: getEnv("PUBLIC_HOST", "http://localhost"),
-		Port:       getEnv("PORT", "8080"),
-		DBUser:     getEnv("DB_USER", "template"),
-		DBPassword: getEnv("DB_PASSWORD", "password"),
-		DBHost:     getEnv("DB_HOST", "127.0.0.1"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		DBName:     getEnv("DB_NAME", "template"),
+	if _, err := os.Stat(".env"); os.IsNotExist(err) {
+		log.Println("Warning: .env file not found (using system env only)")
 	}
-}
 
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
+	Envs = Config{
+		PublicHost: os.Getenv("PUBLIC_HOST"),
+		Port:       os.Getenv("PORT"),
+		DBUser:     os.Getenv("DB_USER"),
+		DBPassword: os.Getenv("DB_PASSWORD"),
+		DBHost:     os.Getenv("DB_HOST"),
+		DBPort:     os.Getenv("DB_PORT"),
+		DBName:     os.Getenv("DB_NAME"),
+		JWTSecret:  os.Getenv("JWT_SECRET"),
 	}
-	return fallback
 }
