@@ -1,5 +1,8 @@
-run
+run:
 	go run cmd/main.go
+
+build:
+	go build -o bin/api cmd/main.go
 
 migration:
 	@migrate create -ext sql -dir cmd/migrate/migrations $(filter-out $@,$(MAKECMDGOALS))
