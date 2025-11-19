@@ -3,10 +3,9 @@ package api
 import (
 	"database/sql"
 	"log"
-	"net/http"
 	"template/services/user"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 type APIServer struct {
@@ -22,14 +21,14 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 }
 
 func (s *APIServer) Run() error {
-	router := mux.NewRouter()
-	subrouter := router.PathPrefix("/api/v1").Subrouter()
+	router := gin.Default()
+	apiGroup := router.Group("/api/v1")
 
 	userStore := user.NewStore(s.db)
 	userHandler := user.NewHandler(userStore)
-	userHandler.RegisterRoutes(subrouter)
+	userHandler.RegisterRoutes(apiGroup)
 
 	log.Println("Listening on", s.addr)
 
-	return http.ListenAndServe(s.addr, router)
+	return router.Run(s.addr)
 }
