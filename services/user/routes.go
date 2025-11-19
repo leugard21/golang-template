@@ -7,7 +7,7 @@ import (
 	"template/types"
 	"template/utils"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -18,35 +18,36 @@ func NewHandler(store types.UserStore) *Handler {
 	return &Handler{store: store}
 }
 
-func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/register", h.handleRegister).Methods("POST")
-	router.HandleFunc("/login", h.handleLogin).Methods("POST")
+func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
+	router.POST("/register", h.handleRegister)
+	router.POST("/login", h.handleLogin)
+
 }
 
-func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleRegister(c *gin.Context) {
 	var payload types.RegisterUserPayload
-	if err := utils.ParseJSON(r, &payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if err := utils.Validate.Struct(payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if existing, err := h.store.GetUserByEmail(payload.Email); err == nil && existing != nil {
-		utils.WriteError(w, http.StatusBadRequest, errors.New("email already exists"))
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email already exists"})
 		return
 	}
 
 	if existing, err := h.store.GetUserByUsername(payload.Username); err == nil && existing != nil {
-		utils.WriteError(w, http.StatusBadRequest, errors.New("username already exists"))
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username already exists"})
 		return
 	}
 
 	hashed, err := utils.HashPassword(payload.Password)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -58,37 +59,37 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := h.store.CreateUser(user)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, err := utils.GenerateAccessToken(userID)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	refreshToken, err := utils.GenerateRefreshToken(userID)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]any{
+	c.JSON(http.StatusCreated, gin.H{
 		"message":      "registered successfully",
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
 	})
 }
 
-func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleLogin(c *gin.Context) {
 	var payload types.LoginPayload
-	if err := utils.ParseJSON(r, &payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if err := utils.Validate.Struct(payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -98,28 +99,28 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		utils.WriteError(w, http.StatusUnauthorized, errors.New("invalid credentials"))
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	if !utils.CheckPassword(u.Password, payload.Password) {
-		utils.WriteError(w, http.StatusUnauthorized, errors.New("invalid credentials"))
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	accessToken, err := utils.GenerateAccessToken(u.ID)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	refreshToken, err := utils.GenerateRefreshToken(u.ID)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]any{
+	c.JSON(http.StatusOK, gin.H{
 		"message":      "login successfully",
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,

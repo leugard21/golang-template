@@ -24,7 +24,7 @@ func init() {
 	_ = godotenv.Load()
 
 	if _, err := os.Stat(".env"); os.IsNotExist(err) {
-		log.Println("Warning: .env file not found (using system env only)")
+		log.Println("Warning: .env file not found")
 	}
 
 	Envs = Config{
