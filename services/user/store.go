@@ -17,7 +17,7 @@ func (s *Store) CreateUser(user types.User) (int, error) {
 	var userID int
 
 	err := s.db.QueryRow(
-		"INSERT INTO users (username, email, password) VALUES ($1, $2, $3, $4) RETURNING id",
+		"INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id",
 		user.Username,
 		user.Email,
 		user.Password,
